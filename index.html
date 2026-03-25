@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DP Coding School</title>
+
+<style>
+
+.dark{
+background:#111;
+color:white;
+}
+
+.dark .card{
+background:#222;
+}
+
+.dark .student{
+background:#333;
+color:white;
+}
+
+*{
+margin:0;
+padding:0;
+font-family:Arial;
+box-sizing:border-box;
+}
+
+body{
+background:linear-gradient(270deg,#667eea,#764ba2,#6dd5ed);
+background-size:600% 600%;
+animation:bg 10s infinite;
+color:white;
+min-height:100vh;
+}
+
+@keyframes bg{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:30px;
+}
+
+.card{
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(10px);
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 0 15px rgba(0,0,0,0.2);
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:8px 0;
+border:none;
+border-radius:5px;
+}
+
+button{
+padding:10px 15px;
+border:none;
+border-radius:6px;
+background:#00c6ff;
+color:white;
+cursor:pointer;
+margin:5px;
+}
+
+button:hover{
+background:#0094cc;
+}
+
+.student{
+background:white;
+color:black;
+padding:12px;
+margin:8px 0;
+border-radius:6px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.student img{
+width:45px;
+height:45px;
+border-radius:50%;
+margin-right:10px;
+}
+
+.gradeBtn{
+background:#ff9800;
+}
+
+.logout{
+background:red;
+}
+
+.stat{
+font-size:20px;
+margin-top:10px;
+}
+
+.rank{
+background:#ffe082;
+color:black;
+padding:10px;
+margin:5px 0;
+border-radius:6px;
+}
+
+.idcard{
+background:white;
+color:black;
+padding:20px;
+border-radius:10px;
+text-align:left;
+box-shadow:0 0 20px rgba(0,0,0,0.3);
+}
+
+canvas{
+max-width:100%;
+background:white;
+border-radius:10px;
+padding:10px;
+margin-bottom:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="loginPage" class="card">
+<h2>Login</h2>
+
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="userLogin()">User Login</button>
+<button onclick="adminLogin()">Admin Login</button>
+<button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+
+<p id="registerText">Don't have an account?</p>
+<button id="registerBtn" onclick="showRegister()">Register</button>
+</div>
+
+<!-- REGISTER PAGE -->
+<div id="registerPage" class="card" style="display:none">
+<h2>Register</h2>
+
+<input type="text" id="regName" placeholder="Full Name">
+<input type="text" id="regUsername" placeholder="Username (stuXXXX@dpf.edu.lk)">
+<input type="email" id="regEmail" placeholder="Email">
+<input type="number" id="regAge" placeholder="Age">
+<input type="password" id="regPassword" placeholder="Password">
+
+<button onclick="registerUser()">Register</button>
+<button onclick="showLogin()">Back to Login</button>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="adminPage" style="display:none">
+
+<canvas id="performanceChart"></canvas>
+
+<div class="card">
+<h2>Admin Dashboard</h2>
+
+<div class="stat">Total Students : <span id="totalStudents">0</span></div>
+<div class="stat">Average Marks : <span id="avgMarks">0</span></div>
+<div class="stat">Top Student : <span id="topStudent">None</span></div>
+</div>
+
+<div class="card">
+<h3>Add Student</h3>
+
+<div class="card">
+<h3>📘 Teacher Assignment</h3>
+
+<input type="text" id="assTitle" placeholder="Assignment Title">
+<input type="text" id="assDesc" placeholder="Description">
+<input type="file" id="assFile" accept="application/pdf">
+<select id="assGrade">
+<option>Grade 6</option>
+<option>Grade 7</option>
+<option>Grade 8</option>
+<option>Grade 9</option>
+<option>Grade 10</option>
+<option>Grade 11</option>
+<option>Grade 12</option>
+<option>Grade 13</option>
+</select>
+
+<button onclick="addAssignment()">Add Assignment</button>
+</div>
+
+<input type="text" id="studentUsername" placeholder="Student Username">
+<input type="text" id="studentName" placeholder="Student Name">
+<input type="number" id="studentAge" placeholder="Age">
+<input type="text" id="studentPhone" placeholder="Phone Number">
+
+<select id="studentGrade">
+<option>Grade 6</option>
+<option>Grade 7</option>
+<option>Grade 8</option>
+<option>Grade 9</option>
+<option>Grade 10</option>
+<option>Grade 11</option>
+<option>Grade 12</option>
+<option>Grade 13</option>
+</select>
+
+<input type="text" id="studentSubject" placeholder="Subject">
+<input type="number" id="studentMarks" placeholder="Marks">
+
+<select id="studentTerm">
+<option>1st Term</option>
+<option>2nd Term</option>
+<option>3rd Term</option>
+</select>
+
+<input type="file" id="studentPhoto">
+
+<button onclick="addStudent()">Add Student</button>
+
+<input type="text" id="search" placeholder="Search Student" onkeyup="searchStudent()">
+</div>
+
+<div class="card">
+<h3>Students</h3>
+<div id="studentList"></div>
+
+<h3>🏆 Student Ranking</h3>
+<div id="ranking"></div>
+
+<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="downloadExcel()">Download Excel</button>
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+
+</div>
+
+<!-- USER PAGE -->
+<div id="userPage" style="display:none">
+
+<div class="card">
+<h2>Student Dashboard</h2>
+
+<select id="termSelect">
+<option>1st Term</option>
+<option>2nd Term</option>
+<option>3rd Term</option>
+</select>
+
+<button class="gradeBtn" onclick="showUserStudents('Grade 6')">Grade 6</button>
+<button class="gradeBtn" onclick="showUserStudents('Grade 7')">Grade 7</button>
+<button class="gradeBtn" onclick="showUserStudents('Grade 8')">Grade 8</button>
+<button class="gradeBtn" onclick="showUserStudents('Grade 9')">Grade 9</button>
+<button class="gradeBtn" onclick="showUserStudents('Grade 10')">Grade 10</button>
+<button class="gradeBtn" onclick="showUserStudents('Grade 11')">Grade 11</button>
+<button class="gradeBtn" onclick="showUserStudents('Grade 12')">Grade 12</button>
+<button class="gradeBtn" onclick="showUserStudents('Grade 13')">Grade 13</button>
+</div>
+
+<div class="card">
+<h3>Students</h3>
+
+<div class="card">
+<h3>📢 Assignments</h3>
+<div id="assignmentList"></div>
+</div>
+
+
+<div id="userStudentList"></div>
+
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+
+</div>
+
+</div>
+
+<!-- ID CARD POPUP -->
+<div id="idCardModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; justify-content:center; align-items:center;">
+    <div class="idcard" style="width:320px; position:relative;">
+        <h2 style="text-align:center;">DP CODING SCHOOL</h2>
+        
+<center>
+    <img id="cardPhoto" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid #333; margin-bottom:10px;">
+</center>
+
+        <p style="text-align:center;"><b>ID CARD</b></p>
+        <hr style="margin:10px 0;">
+
+        <p><b>ID :</b> <span id="cardId"></span></p>
+        <p><b>Name :</b> <span id="cardName"></span></p>
+        <p><b>Username :</b> <span id="cardUsername"></span></p>
+        <p><b>Age :</b> <span id="cardAge"></span></p>
+        <p><b>Grade :</b> <span id="cardGrade"></span></p>
+        <p><b>Phone :</b> <span id="cardPhone"></span></p>
+        <p><b>Subject :</b> <span id="cardSubject"></span></p>
+        <p><b>Marks :</b> <span id="cardMarks"></span></p>
+        <p><b>Term :</b> <span id="cardTerm"></span></p>
+        <p><b>Attendance :</b> <span id="cardAttendance"></span></p>
+
+        <button onclick="closeIdCard()" style="margin-top:15px; background:red; width:100%;">Close</button>
+    </div>
+</div>
+
+<script>
+let students = JSON.parse(localStorage.getItem("students")) || []
+let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
+let chartInstance = null
+
+const ADMIN_USER = "Admin123"
+const ADMIN_PASS = "Koc574501"
+
+function adminLogin(){
+let username = document.getElementById("username").value
+let pass = document.getElementById("password").value
+
+if(username === ADMIN_USER && pass === ADMIN_PASS){
+
+localStorage.setItem("loggedUser", "Admin123");
+
+document.getElementById("loginPage").style.display="none"
+document.getElementById("adminPage").style.display="block"
+displayStudents()
+loadGraph()
+}else{
+alert("Wrong Admin Username or Password")
+}
+}
+
+function userLogin(){
+let username=document.getElementById("username").value
+let password=document.getElementById("password").value
+
+// 🔥 ADMIN login via user button
+if(username === "Admin123" && password === "Koc574501"){
+    localStorage.setItem("loggedUser", "Admin123")
+    document.getElementById("loginPage").style.display="none"
+    document.getElementById("userPage").style.display="block"
+
+    showNotification("Admin Logged In")
+    return;
+}
+
+let users=JSON.parse(localStorage.getItem("users")) || []
+
+let validUser=users.find(u=>u.username===username && u.password===password)
+
+if(validUser){
+    localStorage.setItem("loggedUser", username)
+    document.getElementById("loginPage").style.display="none"
+    document.getElementById("userPage").style.display="block"
+
+    showAssignmentNotification();
+}else{
+    alert("Invalid Username or Password")
+}
+}
+
+function logout(){
+location.reload()
+}
+
+async function addStudent() {
+    let username = document.getElementById("studentUsername").value;
+    let name = document.getElementById("studentName").value;
+    let age = document.getElementById("studentAge").value;
+    let phone = document.getElementById("studentPhone").value;
+    let grade = document.getElementById("studentGrade").value;
+    let subject = document.getElementById("studentSubject").value;
+    let marks = document.getElementById("studentMarks").value;
+    let term = document.getElementById("studentTerm").value;
+    let photoInput = document.getElementById("studentPhoto");
+
+    if (!username || !name || !age || !phone || !grade || !subject || !marks || !term) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    let photoData = "https://via.placeholder.com/45"; // Default photo
+
+    // පින්තූරයක් තෝරා ඇත්නම් එය කියවීම
+    if (photoInput.files && photoInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            photoData = e.target.result;
+            saveStudentData(photoData); // පින්තූරය ලැබුණු පසු Save කරන්න
+        };
+        reader.readAsDataURL(photoInput.files[0]);
+    } else {
+        saveStudentData(photoData);
+    }
+
+    function saveStudentData(img) {
+        let id = "STU" + Date.now();
+        let attendance = "Present";
+
+        students.push({ id, name, username, age, phone, grade, subject, marks, term, attendance, photo: img });
+        localStorage.setItem("students", JSON.stringify(students));
+
+        displayStudents();
+        loadGraph();
+        showNotification("Student Added Successfully");
+
+        // Form එක reset කිරීම
+        document.getElementById("studentUsername").value = "";
+        document.getElementById("studentName").value = "";
+        document.getElementById("studentAge").value = "";
+        document.getElementById("studentPhone").value = "";
+        document.getElementById("studentPhoto").value = ""; // Clear file input
+    }
+}
+
+function displayStudents(){
+let list=document.getElementById("studentList")
+list.innerHTML=""
+
+let totalMarks=0
+let topMarks=0
+let topName="None"
+
+students.forEach((s,i)=>{
+totalMarks+=Number(s.marks)
+
+if(Number(s.marks)>topMarks){
+topMarks=Number(s.marks)
+topName=s.name
+}
+
+list.innerHTML+=`
+<div class="student">
+    <div style="display:flex;align-items:center;">
+        <img src="${s.photo || 'https://via.placeholder.com/45'}">
+        <span>
+            <b>${s.name}</b> (${s.id})<br>
+            Age: ${s.age} | ${s.grade}<br>
+            📞 ${s.phone}<br>
+            ${s.subject} : ${s.marks} (${s.term})<br>
+            Attendance : ${s.attendance}
+        </span>
+    </div>
+
+    <div>
+        <button onclick="viewStudent(${i})">ID Card</button>
+        <button onclick="markPresent(${i})">Present</button>
+        <button onclick="markAbsent(${i})">Absent</button>
+        <button onclick="deleteStudent(${i})">Delete</button>
+    </div>
+</div>
+`
+})
+
+document.getElementById("totalStudents").innerText=students.length
+
+let avg=students.length ? (totalMarks/students.length).toFixed(1) : 0
+document.getElementById("avgMarks").innerText=avg
+document.getElementById("topStudent").innerText=topName
+
+rankingSystem()
+}
+
+function viewStudent(i){
+let s = students[i]
+
+document.getElementById("cardPhoto").src = s.photo || 'https://via.placeholder.com/45';
+
+document.getElementById("cardId").innerText = s.id
+document.getElementById("cardName").innerText = s.name
+document.getElementById("cardUsername").innerText = s.username
+document.getElementById("cardAge").innerText = s.age
+document.getElementById("cardGrade").innerText = s.grade
+document.getElementById("cardPhone").innerText = s.phone
+document.getElementById("cardSubject").innerText = s.subject
+document.getElementById("cardMarks").innerText = s.marks
+document.getElementById("cardTerm").innerText = s.term
+document.getElementById("cardAttendance").innerText = s.attendance
+
+document.getElementById("idCardModal").style.display = "flex"
+}
+
+function closeIdCard(){
+document.getElementById("idCardModal").style.display = "none"
+}
+
+function markPresent(i){
+students[i].attendance="Present"
+localStorage.setItem("students",JSON.stringify(students))
+displayStudents()
+}
+
+function markAbsent(i){
+students[i].attendance="Absent"
+localStorage.setItem("students",JSON.stringify(students))
+displayStudents()
+}
+
+function deleteStudent(i){
+students.splice(i,1)
+localStorage.setItem("students",JSON.stringify(students))
+displayStudents()
+loadGraph()
+}
+
+function rankingSystem(){
+let sorted=[...students].sort((a,b)=>Number(b.marks)-Number(a.marks))
+let rankDiv=document.getElementById("ranking")
+rankDiv.innerHTML=""
+
+sorted.slice(0,5).forEach((s,i)=>{
+rankDiv.innerHTML+=`
+<div class="rank">
+${i+1}. ${s.name} - ${s.marks}
+</div>
+`
+})
+}
+
+function showUserStudents(grade){
+let term = document.getElementById("termSelect").value
+let loggedUser = localStorage.getItem("loggedUser")
+let list=document.getElementById("userStudentList")
+list.innerHTML=""
+
+loadAssignments(grade);
+
+let found = false
+
+students.forEach(s=>{
+if(s.grade===grade && s.term===term && s.username===loggedUser){
+found = true
+list.innerHTML+=`
+<div class="student">
+<span>
+<b>${s.name}</b><br>
+${s.subject} (${s.term}) : ${s.marks}<br>
+Attendance : ${s.attendance}
+</span>
+</div>
+`
+}
+})
+
+if(!found){
+list.innerHTML = `<div class="student"><span>No records found for ${grade} - ${term}</span></div>`
+}
+}
+
+function searchStudent(){
+let value=document.getElementById("search").value.toLowerCase()
+let list=document.getElementById("studentList")
+list.innerHTML=""
+
+students.forEach((s,i)=>{
+if(s.name.toLowerCase().includes(value) || s.id.toLowerCase().includes(value) || s.username.toLowerCase().includes(value)){
+list.innerHTML+=`
+<div class="student">
+    <div style="display:flex;align-items:center;">
+        <img src="${s.photo || 'https://via.placeholder.com/45'}">
+        <span>
+            <b>${s.name}</b> (${s.id})<br>
+            Age: ${s.age} | ${s.grade}<br>
+            📞 ${s.phone}<br>
+            ${s.subject} : ${s.marks} (${s.term})<br>
+            Attendance : ${s.attendance}
+        </span>
+    </div>
+
+    <div>
+        <button onclick="viewStudent(${i})">ID Card</button>
+        <button onclick="markPresent(${i})">Present</button>
+        <button onclick="markAbsent(${i})">Absent</button>
+        <button onclick="deleteStudent(${i})">Delete</button>
+    </div>
+</div>
+`
+}
+})
+}
+
+function showRegister(){
+document.getElementById("loginPage").style.display="none"
+document.getElementById("registerPage").style.display="block"
+}
+
+function showLogin(){
+document.getElementById("registerPage").style.display="none"
+document.getElementById("loginPage").style.display="block"
+}
+
+function registerUser(){
+let name=document.getElementById("regName").value
+let username=document.getElementById("regUsername").value
+let email=document.getElementById("regEmail").value
+let age=document.getElementById("regAge").value
+let password=document.getElementById("regPassword").value
+
+if(!username.endsWith("@dpf.edu.lk")){
+alert("Username must end with @dpf.edu.lk")
+return
+}
+
+let users=JSON.parse(localStorage.getItem("users")) || []
+
+let alreadyExists = users.some(u => u.username === username)
+if(alreadyExists){
+alert("This username already exists")
+return
+}
+
+users.push({name,username,email,age,password})
+
+localStorage.setItem("users",JSON.stringify(users))
+
+alert("Registration Successful!")
+showLogin()
+}
+
+function toggleDarkMode(){
+let body=document.body
+
+if(body.classList.contains("dark")){
+body.classList.remove("dark")
+}else{
+body.classList.add("dark")
+}
+}
+
+function showNotification(msg){
+let box=document.createElement("div")
+box.innerText=msg
+box.style.position="fixed"
+box.style.top="20px"
+box.style.right="20px"
+box.style.background="#00c6ff"
+box.style.color="white"
+box.style.padding="12px"
+box.style.borderRadius="6px"
+box.style.zIndex="999"
+box.style.boxShadow="0 0 10px rgba(0,0,0,0.3)"
+
+document.body.appendChild(box)
+
+setTimeout(()=>{
+box.remove()
+},3000)
+}
+
+function loadGraph(){
+let names=[]
+let marks=[]
+
+students.forEach(s=>{
+names.push(s.name)
+marks.push(Number(s.marks))
+})
+
+const ctx = document.getElementById("performanceChart")
+
+if(chartInstance){
+chartInstance.destroy()
+}
+
+chartInstance = new Chart(ctx,{
+type:"line",
+data:{
+labels:names,
+datasets:[{
+label:"Marks",
+data:marks,
+fill:false,
+tension:0.2
+}]
+},
+options:{
+responsive:true,
+plugins:{
+legend:{
+labels:{
+color:"black"
+}
+}
+},
+scales:{
+x:{
+ticks:{color:"black"}
+},
+y:{
+beginAtZero:true,
+ticks:{color:"black"}
+}
+}
+}
+})
+}
+
+function downloadPDF(){
+const { jsPDF } = window.jspdf
+let doc = new jsPDF()
+
+doc.setFontSize(16)
+doc.text("DP Coding School - Student Report", 20, 20)
+
+let y = 35
+
+students.forEach((s, i) => {
+let line = `${i+1}. ${s.name} | ${s.id} | ${s.username} | ${s.grade} | ${s.subject} | ${s.marks} | ${s.term} | ${s.attendance}`
+doc.setFontSize(10)
+doc.text(line, 10, y)
+y += 10
+
+if(y > 280){
+doc.addPage()
+y = 20
+}
+})
+
+doc.save("students_report.pdf")
+}
+
+function downloadExcel(){
+let data = students.map(s => ({
+ID: s.id,
+Name: s.name,
+Username: s.username,
+Age: s.age,
+Phone: s.phone,
+Grade: s.grade,
+Subject: s.subject,
+Marks: s.marks,
+Term: s.term,
+Attendance: s.attendance
+}))
+
+let worksheet = XLSX.utils.json_to_sheet(data)
+let workbook = XLSX.utils.book_new()
+
+XLSX.utils.book_append_sheet(workbook, worksheet, "Students")
+XLSX.writeFile(workbook, "students_report.xlsx")
+}
+
+
+function addAssignment(){
+    let title = document.getElementById("assTitle").value;
+    let desc = document.getElementById("assDesc").value;
+    let grade = document.getElementById("assGrade").value;
+    let fileInput = document.getElementById("assFile");
+
+    if(!title || !desc){
+        alert("Fill all fields");
+        return;
+    }
+
+    let fileData = null;
+
+    if(fileInput.files && fileInput.files[0]){
+        let reader = new FileReader();
+
+        reader.onload = function(e){
+            fileData = e.target.result;
+
+            assignments.push({title, desc, grade, file:fileData});
+            localStorage.setItem("assignments", JSON.stringify(assignments));
+
+            showNotification("Assignment + PDF Added!");
+
+            document.getElementById("assTitle").value="";
+            document.getElementById("assDesc").value="";
+            document.getElementById("assFile").value="";
+        }
+
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        assignments.push({title, desc, grade, file:null});
+        localStorage.setItem("assignments", JSON.stringify(assignments));
+
+        showNotification("Assignment Added (No PDF)");
+    }
+}
+
+
+
+function loadAssignments(grade){
+    let list = document.getElementById("assignmentList");
+    list.innerHTML = "";
+
+    let found = false;
+
+    assignments.forEach((a,i) => {
+        if(a.grade === grade){
+            found = true;
+
+            list.innerHTML += `
+            <div class="student">
+                <span>
+                    <b>${a.title}</b><br>
+                    ${a.desc}<br>
+                    🎓 ${a.grade}
+                </span>
+
+                <div>
+                    ${a.file ? `<a href="${a.file}" download="assignment.pdf">
+                        <button>📄 Download PDF</button>
+                    </a>` : ""}
+
+                    ${localStorage.getItem("loggedUser") === "Admin123" ? 
+                    `<button onclick="deleteAssignment(${i})" style="background:red;">Delete</button>` : ""}
+                </div>
+
+            </div>
+            `;
+        }
+    });
+
+    if(!found){
+        list.innerHTML = `<div class="student"><span>No assignments for ${grade}</span></div>`;
+    }
+}
+
+
+function showAssignmentNotification(){
+    if(assignments.length > 0){
+        let latest = assignments[assignments.length - 1];
+
+        showNotification("📢 New Assignment: " + latest.title);
+    }
+}
+
+
+function deleteAssignment(index){
+    if(confirm("Delete this assignment?")){
+        assignments.splice(index,1);
+        localStorage.setItem("assignments", JSON.stringify(assignments));
+
+        showNotification("Assignment Deleted");
+
+        // Reload list
+        let gradeButtons = document.querySelectorAll(".gradeBtn");
+        gradeButtons.forEach(btn=>{
+            if(btn.classList.contains("active")){
+                loadAssignments(btn.innerText);
+            }
+        });
+
+        location.reload(); // simple refresh
+    }
+}
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</body>
+</html>
